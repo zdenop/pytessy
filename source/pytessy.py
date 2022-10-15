@@ -186,6 +186,13 @@ class TesseractHandler(object):
         self._check_setup()
         return self._lib.TessBaseAPISetVariable(self._api, key.encode('ascii'), val.encode('ascii'))
 
+    def mean_text_conf(self):
+        """
+        @Return: (int) average confidence value between 0 and 100.
+        """
+        self._check_setup()
+        return self._lib.TessBaseAPIMeanTextConf(self._api)
+
     @classmethod
     def setup_lib(cls, lib_path=None):
         """
@@ -234,10 +241,13 @@ class TesseractHandler(object):
         lib.TessBaseAPISetPageSegMode.argtypes = (cls.TessBaseAPI,  # handle
                                                   ctypes.c_int)     # mode
 
-        lib.TessBaseAPISetVariable.restype = ctypes.c_bool
+        lib.TessBaseAPISetVariable.restype = ctypes.c_bool       # bool
         lib.TessBaseAPISetVariable.argtypes = (cls.TessBaseAPI,  # handle
                                                ctypes.c_char_p,  # name
                                                ctypes.c_char_p)  # value
+
+        lib.TessBaseAPIMeanTextConf.restype = ctypes.c_int         # int
+        lib.TessBaseAPIMeanTextConf.argtypes = (cls.TessBaseAPI,)  # handle
 
     def _check_setup(self):
         """
@@ -443,7 +453,7 @@ class PyTessy(object):
         self._tess.set_psm(psm)
         self._tess.set_image(raw_image_ctypes, width, height, bytes_per_pixel,
                              bytes_per_line, resolution)
-        return self._tess.get_text()
+        return self._tess.get_text_raw()
 
     def read(self, imagedata, width, height, bytes_per_pixel, resolution=96,
              raw=False, psm=3):
@@ -525,6 +535,12 @@ class PyTessy(object):
         @Return: (bool) ``False`` if the name lookup failed.
         """
         return self._tess.set_variable(key, val)
+
+    def mean_text_conf(self):
+        """
+        @Return: (int) average confidence value between 0 and 100.
+        """
+        return self._tess.mean_text_conf()
 
 
 if __name__ == '__main__':
