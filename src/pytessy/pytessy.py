@@ -213,6 +213,8 @@ class TesseractHandler(object):
         """
 
         self._check_setup()
+        if not isinstance(val, str):
+            val = str(val)
         return self._lib.TessBaseAPISetVariable(self._api, key.encode('ascii'), val.encode('ascii'))
 
     def mean_text_conf(self):
@@ -434,8 +436,8 @@ class PyTessy(object):
                     'PyTessy: Couldn\'t find "tessdata" directory.')
         self._tess = TesseractHandler(lib_path=lib_path, data_path=data_path,
                                       language=language)
-        self._tess.set_variable(b"tessedit_pageseg_mode", bytes(psm))
-        self._tess.set_variable(b"tessedit_ocr_engine_mode", bytes(oem))
+        self._tess.set_variable("tessedit_pageseg_mode", psm)
+        self._tess.set_variable("tessedit_ocr_engine_mode", oem)
         if char_whitelist:
             self._tess.set_variable(b"tessedit_char_whitelist", char_whitelist)
 
