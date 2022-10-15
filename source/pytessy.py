@@ -103,7 +103,7 @@ class TesseractHandler(object):
         """
         Gets text as raw bytes data
         ---------------------------
-        @Return: (bytes)    Text read by Tesseract-OCR as raw bytes .
+        @Return: (bytes)    Text read by Tesseract-OCR as raw bytes.
         """
 
         self._check_setup()
@@ -168,6 +168,35 @@ class TesseractHandler(object):
 
         self._check_setup()
         self._lib.TessBaseAPISetPageSegMode(self._api, psm)
+
+    def get_psm(self):
+        """
+        Gets Page Segmentation Mode, as per TessPageSegMode enum:
+        ------------------
+        @Return: psm (int) Page Segmentation Mode, as per TessPageSegMode enum:
+
+        typedef enum TessPageSegMode {
+          PSM_OSD_ONLY,
+          PSM_AUTO_OSD,
+          PSM_AUTO_ONLY,
+          PSM_AUTO,
+          PSM_SINGLE_COLUMN,
+          PSM_SINGLE_BLOCK_VERT_TEXT,
+          PSM_SINGLE_BLOCK,
+          PSM_SINGLE_LINE,
+          PSM_SINGLE_WORD,
+          PSM_CIRCLE_WORD,
+          PSM_SINGLE_CHAR,
+          PSM_SPARSE_TEXT,
+          PSM_SPARSE_TEXT_OSD,
+          PSM_RAW_LINE,
+          PSM_COUNT
+        } TessPageSegMode;
+        https://github.com/UB-Mannheim/tesseract/blob/master/include/tesseract/capi.h
+        """
+
+        self._check_setup()
+        return self._lib.TessBaseAPIGetPageSegMode(self._api)
 
     def set_variable(self, key, val):
         """
@@ -240,6 +269,9 @@ class TesseractHandler(object):
         lib.TessBaseAPISetPageSegMode.restype = None
         lib.TessBaseAPISetPageSegMode.argtypes = (cls.TessBaseAPI,  # handle
                                                   ctypes.c_int)     # mode
+
+        lib.TessBaseAPIGetPageSegMode.restype = ctypes.c_int         # mode
+        lib.TessBaseAPIGetPageSegMode.argtypes = (cls.TessBaseAPI,)  # handle
 
         lib.TessBaseAPISetVariable.restype = ctypes.c_bool       # bool
         lib.TessBaseAPISetVariable.argtypes = (cls.TessBaseAPI,  # handle
@@ -408,7 +440,7 @@ class PyTessy(object):
             self._tess.set_variable(b"tessedit_char_whitelist", char_whitelist)
 
     def justread(self, raw_image_ctypes, width, height, bytes_per_pixel,
-                 bytes_per_line, resolution=96, psm=3):
+                 bytes_per_line, resolution=96, psm=None):
         """
         Reads text as utf-8 string from raw image data without any check
         ----------------------------------------------------------------
@@ -426,13 +458,16 @@ class PyTessy(object):
                                                       as utf-8 string.
         """
 
+        if psm is None:
+            psm = self.get_psm()
+
         self._tess.set_psm(psm)
         self._tess.set_image(raw_image_ctypes, width, height, bytes_per_pixel,
                              bytes_per_line, resolution)
         return self._tess.get_text()
 
     def justread_raw(self, raw_image_ctypes, width, height, bytes_per_pixel,
-                     bytes_per_line, resolution=96, psm=3):
+                     bytes_per_line, resolution=96, psm=None):
         """
         Reads text as raw bytes data from raw image data without any check
         ------------------------------------------------------------------
@@ -450,13 +485,16 @@ class PyTessy(object):
                                                       as raw bytes data.
         """
 
+        if psm is None:
+            psm = self.get_psm()
+
         self._tess.set_psm(psm)
         self._tess.set_image(raw_image_ctypes, width, height, bytes_per_pixel,
                              bytes_per_line, resolution)
         return self._tess.get_text_raw()
 
     def read(self, imagedata, width, height, bytes_per_pixel, resolution=96,
-             raw=False, psm=3):
+             raw=False, psm=None):
         """
         Reads text from image data
         --------------------------
@@ -473,6 +511,9 @@ class PyTessy(object):
                                                       enum (see set_psm method)
         @Return: (bytes) or (string)                  Text read by Tesseract-OCR
         """
+
+        if psm is None:
+            psm = self.get_psm()
 
         bytes_per_line = width * bytes_per_pixel
         if raw:
@@ -520,6 +561,14 @@ class PyTessy(object):
         @Params: psm (int) Page Segmentation Mode, as per TessPageSegMode enum
         """
         self._tess.set_psm(psm)
+
+    def get_psm(self):
+        """
+        Gets Page Segmentation Mode, as per TessPageSegMode enum:
+        ------------------
+        @Return: psm (int) Page Segmentation Mode, as per TessPageSegMode enum
+        """
+        return self._tess.get_psm()
 
     def set_variable(self, key, val):
         """
