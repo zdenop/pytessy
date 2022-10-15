@@ -6,6 +6,7 @@ This module allows faster access to Tesseract-OCR from Python scripts.
 This repository integrate changes from following [pytessy](https://github.com/hyperrixel/pytessy) forks:
 * [sydneyprovence/pytessy](https://github.com/sydneyprovence/pytessy)
 * [tbattz/pytessy](https://github.com/tbattz/pytessy)
+* [jevgienij/pytessy](https://github.com/jevgienij/pytessy) (2020 patches)
 
 It adds two quick 'hacks' to enable more functionality.
 
