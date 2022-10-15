@@ -29,7 +29,6 @@ See accompanying file LICENSE or a copy at https://www.boost.org/LICENSE_1_0.txt
 """
 
 
-
 import ctypes
 import ctypes.util
 from distutils.spawn import find_executable
@@ -51,7 +50,6 @@ class PyTessyError(Exception):
     pass
 
 
-
 class TesseractHandler(object):
     """
     TesseractHandler class
@@ -62,8 +60,6 @@ class TesseractHandler(object):
     _lib = None
     _api = None
 
-
-
     class TessBaseAPI(ctypes._Pointer):
         """
         TessBaseAPI
@@ -73,9 +69,7 @@ class TesseractHandler(object):
 
         _type_ = type('_TessBaseAPI', (ctypes.Structure,), {})
 
-
-
-    def __init__(self, lib_path=None,  data_path=None, language='eng'):
+    def __init__(self, lib_path=None, data_path=None, language='eng'):
         """
         Initializes Tesseract-OCR api handler object instance
         -----------------------------------------------------
@@ -91,8 +85,6 @@ class TesseractHandler(object):
                                       language.encode('ascii')):
             raise PyTessyError('Failed to initalize Tesseract-OCR library.')
 
-
-
     def get_text(self):
         """
         Gets text as utf-8 decoded string
@@ -107,8 +99,6 @@ class TesseractHandler(object):
         else:
             return ""
 
-
-
     def get_text_raw(self):
         """
         Gets text as raw bytes data
@@ -118,8 +108,6 @@ class TesseractHandler(object):
 
         self._check_setup()
         return self._lib.TessBaseAPIGetUTF8Text(self._api)
-
-
 
     def set_image(self, imagedata, width, height, bytes_per_pixel, bytes_per_line,
                   resolution):
@@ -141,19 +129,16 @@ class TesseractHandler(object):
                                       imagedata, width, height,
                                       bytes_per_pixel, bytes_per_line)
         self._lib.TessBaseAPISetSourceResolution(self._api, resolution)
-        
-        
+
     def set_variable(self, key, val):
         """
         Sets a variable in Tesseract
         ----------
-        @Params: key                                    
+        @Params: key
                  val : TYPE
         """
         self._check_setup()
         self._lib.TessBaseAPISetVariable(self._api, key, val)
-
-
 
     @classmethod
     def setup_lib(cls, lib_path=None):
@@ -168,7 +153,7 @@ class TesseractHandler(object):
             return
         lib_path = ctypes.util.find_library(lib_path)
         if lib_path is None:
-             raise PyTessyError('Ctypes couldn\'t find Tesseract-OCR library')
+            raise PyTessyError('Ctypes couldn\'t find Tesseract-OCR library')
         cls._lib = lib = ctypes.CDLL(lib_path)
 
         lib.TessBaseAPICreate.restype = cls.TessBaseAPI         # handle
@@ -187,19 +172,17 @@ class TesseractHandler(object):
                                             ctypes.c_int,       # height
                                             ctypes.c_int,       # bytes_per_pixel
                                             ctypes.c_int)       # bytes_per_line
-        
-        lib.TessBaseAPISetVariable.argtypes = (cls.TessBaseAPI, 
-                                               ctypes.c_char_p, 
+
+        lib.TessBaseAPISetVariable.argtypes = (cls.TessBaseAPI,
+                                               ctypes.c_char_p,
                                                ctypes.c_char_p)
-        
+
         lib.TessBaseAPIGetUTF8Text.restype = ctypes.c_char_p        # text
         lib.TessBaseAPIGetUTF8Text.argtypes = (cls.TessBaseAPI, )   # handle
 
         lib.TessBaseAPISetSourceResolution.restype = None               # void
-        lib.TessBaseAPISetSourceResolution.argtypes = (cls.TessBaseAPI, # handle
+        lib.TessBaseAPISetSourceResolution.argtypes = (cls.TessBaseAPI,  # handle
                                                        ctypes.c_int)    # ppi
-
-
 
     def _check_setup(self):
         """
@@ -214,8 +197,6 @@ class TesseractHandler(object):
         if not self._api:
             raise PyTessyError('Tesseract handler api not created.')
 
-
-
     def __del__(self):
         """
         Disconnects TessBaseAPI when instance is deleted
@@ -227,7 +208,6 @@ class TesseractHandler(object):
         if not getattr(self, 'closed', False):
             self._lib.TessBaseAPIDelete(self._api)
             self.closed = True
-
 
 
 class PyTessy(object):
@@ -243,10 +223,8 @@ class PyTessy(object):
     TESSERACT_DEFAULT_HORIZONTAL_DPI = 70
     VERSION = '0.0.1'
 
-
-
     def __init__(self, tesseract_path=None, api_version=None, lib_path=None,
-                 data_path=None, language='eng', verbose_search=False, 
+                 data_path=None, language='eng', verbose_search=False,
                  oem=1, psm=7, char_whitelist=None):
         """
         Initializes PyTessy instance
@@ -300,13 +278,23 @@ class PyTessy(object):
                     lib_name = 'libtesseract{}'.format(api_version)
                 verbose('--- Target library name: {}'.format(lib_name))
                 if tesseract_path is not None:
-                    dirs = [tesseract_path, run_path, join(run_path, PyTessy.TESSERACT_DIRNAME)]
+                    dirs = [
+                        tesseract_path, run_path, join(
+                            run_path, PyTessy.TESSERACT_DIRNAME)]
                 else:
-                    dirs = [run_path, join(run_path, PyTessy.TESSERACT_DIRNAME)]
+                    dirs = [
+                        run_path, join(
+                            run_path, PyTessy.TESSERACT_DIRNAME)]
                 if 'PROGRAMFILES' in environ:
-                    dirs.append(join(environ['PROGRAMFILES'], PyTessy.TESSERACT_DIRNAME))
+                    dirs.append(
+                        join(
+                            environ['PROGRAMFILES'],
+                            PyTessy.TESSERACT_DIRNAME))
                 if 'PROGRAMFILES(X86)' in environ:
-                    dirs.append(join(environ['PROGRAMFILES(X86)'], PyTessy.TESSERACT_DIRNAME))
+                    dirs.append(
+                        join(
+                            environ['PROGRAMFILES(X86)'],
+                            PyTessy.TESSERACT_DIRNAME))
                 for dir in dirs:
                     test = join(dir, '{}.dll'.format(lib_name))
                     if isfile(test):
@@ -316,43 +304,46 @@ class PyTessy(object):
                     else:
                         verbose('    {} FAILED.'.format(test))
                 if lib_path is None:
-                    raise FileNotFoundError('Cannot locate Tesseract-OCR library.')
+                    raise FileNotFoundError(
+                        'Cannot locate Tesseract-OCR library.')
             elif platform.startswith('linux'):
                 findProgram = find_executable('tesseract')
                 if len(findProgram) == 0:
-                    raise FileNotFoundError('Cannot locate Tesseract-OCR library.')
+                    raise FileNotFoundError(
+                        'Cannot locate Tesseract-OCR library.')
                 else:
                     lib_path = 'tesseract'
                     data_path = "/usr/share/tessdata/"
             elif platform.startswith('darwin'):
-                raise NotImplementedError('PyTessy: Library search on MacOS is not implemented yet.')
+                raise NotImplementedError(
+                    'PyTessy: Library search on MacOS is not implemented yet.')
             else:
-                raise NotImplementedError('PyTessy: Library search on this system is not implemented.')
+                raise NotImplementedError(
+                    'PyTessy: Library search on this system is not implemented.')
         tess_path = dirname(abspath(lib_path))
         no_tessdata = True
         if data_path is not None:
             if isdir(data_path):
                 no_tessdata = False
         if no_tessdata:
-            for test_path in [run_path, join(run_path, PyTessy.TESSERACT_DIRNAME), tess_path]:
+            for test_path in [run_path, join(
+                    run_path, PyTessy.TESSERACT_DIRNAME), tess_path]:
                 test_path = join(test_path, PyTessy.TESSDATA_DIRNAME)
                 if isdir(test_path):
                     data_path = test_path
                     break
             if data_path is None:
-                raise FileNotFoundError('PyTessy: Couldn\'t find "tessdata" directory.')
+                raise FileNotFoundError(
+                    'PyTessy: Couldn\'t find "tessdata" directory.')
         self._tess = TesseractHandler(lib_path=lib_path, data_path=data_path,
                                       language=language)
         self._tess.set_variable(b"tessedit_pageseg_mode", bytes(psm))
         self._tess.set_variable(b"tessedit_ocr_engine_mode", bytes(oem))
         if char_whitelist:
             self._tess.set_variable(b"tessedit_char_whitelist", char_whitelist)
-        
-
-
 
     def justread(self, raw_image_ctypes, width, height, bytes_per_pixel,
-                  bytes_per_line, resolution=96):
+                 bytes_per_line, resolution=96):
         """
         Reads text as utf-8 string from raw image data without any check
         ----------------------------------------------------------------
@@ -370,8 +361,6 @@ class PyTessy(object):
         self._tess.set_image(raw_image_ctypes, width, height, bytes_per_pixel,
                              bytes_per_line, resolution)
         return self._tess.get_text()
-
-
 
     def justread_raw(self, raw_image_ctypes, width, height, bytes_per_pixel,
                      bytes_per_line, resolution=96):
@@ -392,8 +381,6 @@ class PyTessy(object):
         self._tess.set_image(raw_image_ctypes, width, height, bytes_per_pixel,
                              bytes_per_line, resolution)
         return self._tess.get_text()
-
-
 
     def read(self, imagedata, width, height, bytes_per_pixel, resolution=96,
              raw=False):
@@ -419,8 +406,8 @@ class PyTessy(object):
             return self.justread(imagedata, width, height, bytes_per_pixel,
                                  bytes_per_line, resolution)
 
-
-    def readnp(self, imagedata: np.ndarray, resolution=96, raw=False, psm=None):
+    def readnp(self, imagedata: np.ndarray,
+               resolution=96, raw=False, psm=None):
         """
         Reads text from image data contained in a numpy ndarray
         --------------------------
@@ -440,12 +427,14 @@ class PyTessy(object):
         elif len(imagedata.shape) == 3:  # 24 or 32 bits color picture
             height, width, bytes_per_pixel = imagedata.shape
         else:
-            raise PyTessyError('imagedata should be 3- or 2- dimensional numpy ndarray')
+            raise PyTessyError(
+                'imagedata should be 3- or 2- dimensional numpy ndarray')
 
         if psm is None:
             psm = self.get_psm()
 
-        return self.read(imagedata.ctypes, width, height, bytes_per_pixel, resolution, raw, psm)
+        return self.read(imagedata.ctypes, width, height,
+                         bytes_per_pixel, resolution, raw, psm)
 
 
 if __name__ == '__main__':
