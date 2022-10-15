@@ -30,14 +30,15 @@ See accompanying file LICENSE or a copy at https://www.boost.org/LICENSE_1_0.txt
 
 
 
-import __main__
 import ctypes
 import ctypes.util
+from distutils.spawn import find_executable
 from os import chdir, environ, getcwd
 from os.path import abspath, dirname, isabs, isdir, isfile, join
 from sys import platform
-from distutils.spawn import find_executable
 
+import __main__
+import numpy as np
 
 
 class PyTessyError(Exception):
@@ -418,6 +419,33 @@ class PyTessy(object):
             return self.justread(imagedata, width, height, bytes_per_pixel,
                                  bytes_per_line, resolution)
 
+
+    def readnp(self, imagedata: np.ndarray, resolution=96, raw=False, psm=None):
+        """
+        Reads text from image data contained in a numpy ndarray
+        --------------------------
+        @Params: imagedata   (np.ndarray)  Raw image data in a numpy ndarray.
+                 resolution  (int)         [optional] Resolution in dpi.
+                                           Default: 96.
+                 raw         (boolean)     [optional] Whether to read
+                                           in raw or utf-8 mode.
+                 psm         (int)         [optional] Page Segmentation
+                                           Mode as per TessPageSegMode
+                                           enum (see set_psm method)
+        @Return: (bytes) or (string)       Text read by Tesseract-OCR
+        """
+        if len(imagedata.shape) == 2:  # greyscale picture
+            height, width = imagedata.shape
+            bytes_per_pixel = 1
+        elif len(imagedata.shape) == 3:  # 24 or 32 bits color picture
+            height, width, bytes_per_pixel = imagedata.shape
+        else:
+            raise PyTessyError('imagedata should be 3- or 2- dimensional numpy ndarray')
+
+        if psm is None:
+            psm = self.get_psm()
+
+        return self.read(imagedata.ctypes, width, height, bytes_per_pixel, resolution, raw, psm)
 
 
 if __name__ == '__main__':
