@@ -19,7 +19,7 @@ On linux, install tesseract and get the trained data.
 ```bash
 sudo apt install tesseract-ocr
 wget https://github.com/tesseract-ocr/tessdata/raw/master/eng.traineddata
-sudo mkdir /usr/share/tessdata/ 
+sudo mkdir /usr/share/tessdata/
 sudo mv eng.traineddata /usr/share/tessdata/
 ```
 Run the example usage script.
@@ -57,6 +57,14 @@ for file in files:
 To build and run the docker container:
 docker build . -t test-pytessy
 docker run --rm -it  -p 80:80/tcp test-pytessy:latest
+
+
+To run fastapi example (modify paths/filenames in exampleFastAPI.apy:
+```
+pip install fastapi "uvicorn[standard]"
+uvicorn exampleFastAPI:app --reload
+```
+
 
 ## Why and when is it so fast?
 
