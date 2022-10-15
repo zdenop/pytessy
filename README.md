@@ -6,7 +6,7 @@ This module allows faster access to Tesseract-OCR from Python scripts.
 This repository integrate changes from following [pytessy](https://github.com/hyperrixel/pytessy) forks:
 * [sydneyprovence/pytessy](https://github.com/sydneyprovence/pytessy)
 * [tbattz/pytessy](https://github.com/tbattz/pytessy)
-* [jevgienij/pytessy](https://github.com/jevgienij/pytessy) (2020 patches)
+* [jevgienij/pytessy](https://github.com/jevgienij/pytessy)
 * [giorgiococci/pytessy](https://github.com/giorgiococci/pytessy) - Docker and FastAPI example
 
 It adds two quick 'hacks' to enable more functionality.
@@ -56,9 +56,10 @@ for file in files:
 ```
 
 To build and run the docker container:
+```
 docker build . -t test-pytessy
 docker run --rm -it  -p 80:80/tcp test-pytessy:latest
-
+```
 
 To run fastapi example (modify paths/filenames in exampleFastAPI.apy:
 ```
