@@ -1,7 +1,7 @@
 import cv2
 from PIL import Image, ImageFilter
 
-from source import pytessy
+import pytessy
 
 if __name__ == "__main__":
 
