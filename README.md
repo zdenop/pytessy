@@ -2,6 +2,9 @@
 
 This module allows faster access to Tesseract-OCR from Python scripts.
 
+## Quick start
+This repository integrate changes from following [pytessy](https://github.com/hyperrixel/pytessy) forks:
+* [sydneyprovence/pytessy](https://github.com/sydneyprovence/pytessy)
 ## Why and when is it so fast?
 
 PyTessy uses direct library-level access to Tesseract-OCR's core library. Therefore is it so fast in case when the image is already in the memory or when the image need to be processed before scanning with Tesseract-OCR. In case of reading and scanning existing files only PyTessy is just a bit faster than usual Tesseract-OCR Python wrappers.
