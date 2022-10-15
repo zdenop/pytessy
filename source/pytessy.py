@@ -83,7 +83,7 @@ class TesseractHandler(object):
         self._api = self._lib.TessBaseAPICreate()
         if self._lib.TessBaseAPIInit3(self._api, data_path.encode('ascii'),
                                       language.encode('ascii')):
-            raise PyTessyError('Failed to initalize Tesseract-OCR library.')
+            raise PyTessyError('Failed to initialize Tesseract-OCR library.')
 
     def get_text(self):
         """
@@ -114,7 +114,7 @@ class TesseractHandler(object):
         """
         Sets image to read
         ------------------
-        @Params: imagedata          (ctyps.int arrray)  Raw imagedata to read.
+        @Params: imagedata          (ctypes.int array)  Raw imagedata to read.
                  width              (int)               Width of the image.
                  height             (int)               Height of the image.
                  bytes_per_pixel    (int)               Number of bytes that
@@ -139,6 +139,35 @@ class TesseractHandler(object):
         """
         self._check_setup()
         self._lib.TessBaseAPISetVariable(self._api, key, val)
+
+    def set_psm(self, psm):
+        """
+        Sets Page Segmentation Mode, as per TessPageSegMode enum:
+        ------------------
+        @Params: psm (int) Page Segmentation Mode, as per TessPageSegMode enum:
+
+        typedef enum TessPageSegMode {
+          PSM_OSD_ONLY,
+          PSM_AUTO_OSD,
+          PSM_AUTO_ONLY,
+          PSM_AUTO,
+          PSM_SINGLE_COLUMN,
+          PSM_SINGLE_BLOCK_VERT_TEXT,
+          PSM_SINGLE_BLOCK,
+          PSM_SINGLE_LINE,
+          PSM_SINGLE_WORD,
+          PSM_CIRCLE_WORD,
+          PSM_SINGLE_CHAR,
+          PSM_SPARSE_TEXT,
+          PSM_SPARSE_TEXT_OSD,
+          PSM_RAW_LINE,
+          PSM_COUNT
+        } TessPageSegMode;
+        https://github.com/UB-Mannheim/tesseract/blob/master/include/tesseract/capi.h
+        """
+
+        self._check_setup()
+        self._lib.TessBaseAPISetPageSegMode(self._api, psm)
 
     @classmethod
     def setup_lib(cls, lib_path=None):
@@ -184,9 +213,13 @@ class TesseractHandler(object):
         lib.TessBaseAPISetSourceResolution.argtypes = (cls.TessBaseAPI,  # handle
                                                        ctypes.c_int)    # ppi
 
+        lib.TessBaseAPISetPageSegMode.restype = None
+        lib.TessBaseAPISetPageSegMode.argtypes = (cls.TessBaseAPI,  # handle
+                                                  ctypes.c_int)     # mode
+
     def _check_setup(self):
         """
-        Chekcs whether Tesseract-OCR is set up or not
+        Checks whether Tesseract-OCR is set up or not
         ---------------------------------------------
         @Raises: PyTessyError       If library handler not yet configured.
                  PyTessyError       If api handler not yet configured.
@@ -239,7 +272,7 @@ class PyTessy(object):
                                             to data directory (usually "tessdata").
                  data_path      (string)    [optional] Path (directory's name)
                                             to data directory (usually "tessdata").
-                 language       (string)    [optional] Languge code to use.
+                 language       (string)    [optional] Language code to use.
                  verbose_search (boolean)   [optional] Whether to display
                                             library searching process or not.
         @Raises: NotImplementedError        If the operating system is not
@@ -343,71 +376,82 @@ class PyTessy(object):
             self._tess.set_variable(b"tessedit_char_whitelist", char_whitelist)
 
     def justread(self, raw_image_ctypes, width, height, bytes_per_pixel,
-                 bytes_per_line, resolution=96):
+                 bytes_per_line, resolution=96, psm=3):
         """
         Reads text as utf-8 string from raw image data without any check
         ----------------------------------------------------------------
-        @Params: raw_image_ctypes   (ctypes int arrray) Raw image data.
-                 width              (int)               Image width.
-                 height             (int)               Image height.
-                 bytes_per_pixel    (int)               Number of bytes per pixel.
-                 bytes_per_line     (int)               Number of bytes per line.
-                 resolution         (int)               [optional] Resolution in
-                                                        dpi. Default: 96.
-        @Return: (sting)                                Text read by Tesseract-OCR
-                                                        as utf-8 string.
+        @Params: raw_image_ctypes (ctypes int array)  Raw image data.
+                 width            (int)               Image width.
+                 height           (int)               Image height.
+                 bytes_per_pixel  (int)               Number of bytes per pixel.
+                 bytes_per_line   (int)               Number of bytes per line.
+                 resolution       (int)               [optional] Resolution in
+                                                      dpi. Default: 96.
+                 psm              (int)               [optional] Page Segmentation
+                                                      Mode as per TessPageSegMode
+                                                      enum (see set_psm method)
+        @Return: (string)                             Text read by Tesseract-OCR
+                                                      as utf-8 string.
         """
 
+        self._tess.set_psm(psm)
         self._tess.set_image(raw_image_ctypes, width, height, bytes_per_pixel,
                              bytes_per_line, resolution)
         return self._tess.get_text()
 
     def justread_raw(self, raw_image_ctypes, width, height, bytes_per_pixel,
-                     bytes_per_line, resolution=96):
+                     bytes_per_line, resolution=96, psm=3):
         """
         Reads text as raw bytes data from raw image data without any check
         ------------------------------------------------------------------
-        @Params: raw_image_ctypes   (ctypes int arrray) Raw image data.
-                 width              (int)               Image width.
-                 height             (int)               Image height.
-                 bytes_per_pixel    (int)               Number of bytes per pixel.
-                 bytes_per_line     (int)               Number of bytes per line.
-                 resolution         (int)               [optional] Resolution in
-                                                        dpi. Default: 96.
-        @Return: (bytes)                                Text read by Tesseract-OCR
-                                                        as raw bytes data.
+        @Params: raw_image_ctypes (ctypes int array)  Raw image data.
+                 width            (int)               Image width.
+                 height           (int)               Image height.
+                 bytes_per_pixel  (int)               Number of bytes per pixel.
+                 bytes_per_line   (int)               Number of bytes per line.
+                 resolution       (int)               [optional] Resolution in
+                                                      dpi. Default: 96.
+                 psm              (int)               [optional] Page Segmentation
+                                                      Mode as per TessPageSegMode
+                                                      enum (see set_psm method)
+        @Return: (bytes)                              Text read by Tesseract-OCR
+                                                      as raw bytes data.
         """
 
+        self._tess.set_psm(psm)
         self._tess.set_image(raw_image_ctypes, width, height, bytes_per_pixel,
                              bytes_per_line, resolution)
         return self._tess.get_text()
 
     def read(self, imagedata, width, height, bytes_per_pixel, resolution=96,
-             raw=False):
+             raw=False, psm=3):
         """
         Reads text from image data
         --------------------------
-        @Params: imagedata          (ctypes int arrray) Raw image data.
-                 width              (int)               Image width.
-                 height             (int)               Image height.
-                 bytes_per_pixel    (int)               Number of bytes per pixel.
-                 resolution         (int)               [optional] Resolution in
-                                                        dpi. Default: 96.
-                 raw                (boolean)           [optional] Whether to read
-                                                        in raw or utf-8 mode.
-        @Return: (bytes) or (string)                    Text read by Tesseract-OCR
+        @Params: imagedata        (ctypes int array)  Raw image data.
+                 width            (int)               Image width.
+                 height           (int)               Image height.
+                 bytes_per_pixel  (int)               Number of bytes per pixel.
+                 resolution       (int)               [optional] Resolution in
+                                                      dpi. Default: 96.
+                 raw              (boolean)           [optional] Whether to read
+                                                      in raw or utf-8 mode.
+                 psm              (int)               [optional] Page Segmentation
+                                                      Mode as per TessPageSegMode
+                                                      enum (see set_psm method)
+        @Return: (bytes) or (string)                  Text read by Tesseract-OCR
         """
 
         bytes_per_line = width * bytes_per_pixel
         if raw:
             return self.justread_raw(imagedata, width, height, bytes_per_pixel,
-                                     bytes_per_line, resolution)
+                                     bytes_per_line, resolution, psm)
         else:
             return self.justread(imagedata, width, height, bytes_per_pixel,
-                                 bytes_per_line, resolution)
+                                 bytes_per_line, resolution, psm)
 
     def readnp(self, imagedata: np.ndarray,
-               resolution=96, raw=False, psm=None):
+               resolution=96, raw=False, psm=3):
         """
         Reads text from image data contained in a numpy ndarray
         --------------------------
@@ -435,6 +479,15 @@ class PyTessy(object):
 
         return self.read(imagedata.ctypes, width, height,
                          bytes_per_pixel, resolution, raw, psm)
+
+
+    def set_psm(self, psm):
+        """
+        Sets Page Segmentation Mode, as per TessPageSegMode enum:
+        ------------------
+        @Params: psm (int) Page Segmentation Mode, as per TessPageSegMode enum
+        """
+        self._tess.set_psm(psm)
 
 
 if __name__ == '__main__':
