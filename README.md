@@ -7,6 +7,7 @@ This repository integrate changes from following [pytessy](https://github.com/hy
 * [sydneyprovence/pytessy](https://github.com/sydneyprovence/pytessy)
 * [tbattz/pytessy](https://github.com/tbattz/pytessy)
 * [jevgienij/pytessy](https://github.com/jevgienij/pytessy) (2020 patches)
+* [giorgiococci/pytessy](https://github.com/giorgiococci/pytessy) - Docker and FastAPI example
 
 It adds two quick 'hacks' to enable more functionality.
 
