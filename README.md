@@ -54,6 +54,9 @@ for file in files:
     print(file, imageStr)
 ```
 
+To build and run the docker container:
+docker build . -t test-pytessy
+docker run --rm -it  -p 80:80/tcp test-pytessy:latest
 
 ## Why and when is it so fast?
 
