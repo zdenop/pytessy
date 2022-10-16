@@ -1,8 +1,11 @@
-import pytessy
-from PIL import ImageFilter, Image
-from pathlib import Path
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
+import pathlib
+
+import pytessy.pytessy as pytessy
 from fastapi import FastAPI
+from PIL import Image, ImageFilter
 
 app = FastAPI()
 
@@ -11,14 +14,15 @@ app = FastAPI()
 async def root():
     # Create pytessy instance
     ocrReader = pytessy.PyTessy(
-        tesseract_path="/usr/bin/tesseract",
-        lib_path="/usr/bin/tesseract",
-        data_path="/usr/share/tesseract-ocr/4.00/tessdata",
+        # tesseract_path="/usr/bin/tesseract",
+        # lib_path="/usr/bin/tesseract",
+        # data_path="/usr/share/tesseract-ocr/4.00/tessdata",
     )
 
-    image_folder = Path("./testImages")
+    root_dir = pathlib.Path(__file__).parents[1]
+    image_folder = pathlib.Path(root_dir, "tests")
 
-    file = image_folder / "example.png"
+    file = image_folder / "testWord.png"
 
     # Load Image
     img = Image.open(file)
@@ -34,7 +38,7 @@ async def root():
     # Use OCR on Image
     imageStr = ocrReader.read(
         img.tobytes(), img.width, img.height, bytesPerPixel, raw=True, resolution=600
-    )
+    ).decode("utf-8")
     print(file, imageStr)
 
     return {"File": file, "ImageStr": imageStr}
