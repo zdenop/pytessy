@@ -94,8 +94,10 @@ class TesseractHandler(object):
 
         self._check_setup()
         result = self._lib.TessBaseAPIGetUTF8Text(self._api)
-        if result:
+        if isinstance(result, bytes):
             return result.decode('utf-8')
+        elif isinstance(result, str):
+            return result
         else:
             return ""
 
