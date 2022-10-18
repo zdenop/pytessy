@@ -157,16 +157,6 @@ class TesseractHandler(object):
         )
         self._lib.TessBaseAPISetSourceResolution(self._api, resolution)
 
-    def set_variable(self, key, val):
-        """
-        Sets a variable in Tesseract
-        ----------
-        @Params: key
-                 val : TYPE
-        """
-        self._check_setup()
-        self._lib.TessBaseAPISetVariable(self._api, key, val)
-
     def set_psm(self, psm):
         """
         Sets Page Segmentation Mode, as per TessPageSegMode enum:
