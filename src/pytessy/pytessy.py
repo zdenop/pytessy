@@ -32,11 +32,10 @@ See accompanying file LICENSE or a copy at https://www.boost.org/LICENSE_1_0.txt
 import ctypes
 import ctypes.util
 from distutils.spawn import find_executable
-from os import chdir, environ, getcwd
-from os.path import abspath, dirname, isabs, isdir, isfile, join
+from os import  environ, getcwd
+from os.path import abspath, dirname, isdir, isfile, join
 from sys import platform
 
-import __main__
 import numpy as np
 
 
