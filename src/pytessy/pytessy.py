@@ -84,6 +84,28 @@ class TesseractHandler(object):
         if self._lib.TessBaseAPIInit3(self._api, data_path.encode('ascii'),
                                       language.encode('ascii')):
             raise PyTessyError('Failed to initialize Tesseract-OCR library.')
+    def tesseract_version(self):
+        """ "
+        Gets the Tesseract version, as string:
+        ---------------------------------
+        @Return: (string)   The Tesseract version installed in the system.
+        """
+        return self._lib.TessVersion().decode("utf-8")
+
+    def get_languages(self):
+        """
+        Gets the available languages, as list of strings:
+        ---------------------------------
+        @Return: (list)     List of all available languages for OCR
+        """
+        self._check_setup()
+        langs = self._lib.TessBaseAPIGetAvailableLanguagesAsVector(self._api)
+        languages = []
+        i = 0
+        while langs[i]:
+            languages.append(langs[i].decode("utf-8"))
+            i += 1
+        return languages
 
     def get_text(self):
         """
@@ -269,6 +291,10 @@ class TesseractHandler(object):
         lib.TessBaseAPISetSourceResolution.restype = None               # void
         lib.TessBaseAPISetSourceResolution.argtypes = (cls.TessBaseAPI,  # handle
                                                        ctypes.c_int)    # ppi
+        lib.TessVersion.restype = ctypes.c_char_p
+        lib.TessBaseAPIGetAvailableLanguagesAsVector.restype = ctypes.POINTER(
+            ctypes.c_char_p
+        )
 
         lib.TessBaseAPISetPageSegMode.restype = None
         lib.TessBaseAPISetPageSegMode.argtypes = (cls.TessBaseAPI,  # handle
@@ -594,6 +620,18 @@ class PyTessy(object):
         @Return: (int) average confidence value between 0 and 100.
         """
         return self._tess.mean_text_conf()
+
+    def get_tesseract_version(self):
+        """
+        @Return: (string) the Tesseract version installed in the system.
+        """
+        return self._tess.tesseract_version()
+
+    def get_languages(self):
+        """
+        @Return: (string) all available languages for OCR
+        """
+        return self._tess.get_languages()
 
 
 if __name__ == '__main__':
