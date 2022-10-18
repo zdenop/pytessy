@@ -32,8 +32,8 @@ See accompanying file LICENSE or a copy at https://www.boost.org/LICENSE_1_0.txt
 import ctypes
 import ctypes.util
 from distutils.spawn import find_executable
-from os import  environ, getcwd
-from os.path import abspath, dirname, isdir, isfile, join
+from os import environ
+import pathlib
 from sys import platform
 
 import numpy as np
@@ -81,7 +81,7 @@ class TesseractHandler(object):
             self.setup_lib(lib_path)
         self._api = self._lib.TessBaseAPICreate()
         if self._lib.TessBaseAPIInit3(
-            self._api, data_path.encode("ascii"), language.encode("ascii")
+            self._api, str(data_path).encode("ascii"), language.encode("ascii")
         ):
             raise PyTessyError("Failed to initialize Tesseract-OCR library.")
 
@@ -399,10 +399,10 @@ class PyTessy(object):
                                             search process.
                  FileNotFoundError          If cannot found "tessdata" directory.
         """
-        run_path = dirname(abspath(getcwd()))
+        run_path = pathlib.Path.cwd().parent.absolute()
         no_lib = True
         if lib_path is not None:
-            if isfile(lib_path):
+            if pathlib.Path(lib_path).is_file():
                 no_lib = False
             else:
                 raise FileNotFoundError(
@@ -428,21 +428,23 @@ class PyTessy(object):
                     dirs = [
                         tesseract_path,
                         run_path,
-                        join(run_path, PyTessy.TESSERACT_DIRNAME),
+                        pathlib.Path(run_path, PyTessy.TESSERACT_DIRNAME),
                     ]
                 else:
-                    dirs = [run_path, join(run_path, PyTessy.TESSERACT_DIRNAME)]
+                    dirs = [run_path, pathlib.Path(run_path, PyTessy.TESSERACT_DIRNAME)]
                 if "PROGRAMFILES" in environ:
                     dirs.append(
-                        join(environ["PROGRAMFILES"], PyTessy.TESSERACT_DIRNAME)
+                        pathlib.Path(environ["PROGRAMFILES"], PyTessy.TESSERACT_DIRNAME)
                     )
                 if "PROGRAMFILES(X86)" in environ:
                     dirs.append(
-                        join(environ["PROGRAMFILES(X86)"], PyTessy.TESSERACT_DIRNAME)
+                        pathlib.Path(
+                            environ["PROGRAMFILES(X86)"], PyTessy.TESSERACT_DIRNAME
+                        )
                     )
                 for dir in dirs:
-                    test = join(dir, "{}.dll".format(lib_name))
-                    if isfile(test):
+                    test = pathlib.Path(dir, f"{lib_name}.dll")
+                    if test.is_file():
                         lib_path = test
                         verbose("    {} SUCCESS.".format(test))
                         break
@@ -465,19 +467,19 @@ class PyTessy(object):
                 raise NotImplementedError(
                     "PyTessy: Library search on this system is not implemented."
                 )
-        tess_path = dirname(abspath(lib_path))
+        tess_path = pathlib.Path(lib_path).parent.absolute()
         no_tessdata = True
         if data_path is not None:
-            if isdir(data_path):
+            if pathlib.Path(data_path).is_dir():
                 no_tessdata = False
         if no_tessdata:
             for test_path in [
                 run_path,
-                join(run_path, PyTessy.TESSERACT_DIRNAME),
+                pathlib.Path(run_path, PyTessy.TESSERACT_DIRNAME),
                 tess_path,
             ]:
-                test_path = join(test_path, PyTessy.TESSDATA_DIRNAME)
-                if isdir(test_path):
+                test_path = pathlib.Path(test_path, PyTessy.TESSDATA_DIRNAME)
+                if test_path.is_dir():
                     data_path = test_path
                     break
             if data_path is None:
