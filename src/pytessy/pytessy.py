@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+# pylint: disable = anomalous-backslash-in-string
 """
         _                 _
        (_)               | |
@@ -27,7 +28,7 @@ Copyright rixel 2020
 Distributed under the Boost Software License, Version 1.0.
 See accompanying file LICENSE or a copy at https://www.boost.org/LICENSE_1_0.txt
 """
-
+# pylint: enable = anomalous-backslash-in-string
 
 import ctypes
 import ctypes.util
@@ -86,7 +87,7 @@ class TesseractHandler(object):
             raise PyTessyError("Failed to initialize Tesseract-OCR library.")
 
     def tesseract_version(self):
-        """ "
+        """
         Gets the Tesseract version, as string:
         ---------------------------------
         @Return: (string)   The Tesseract version installed in the system.
@@ -119,10 +120,9 @@ class TesseractHandler(object):
         result = self._lib.TessBaseAPIGetUTF8Text(self._api)
         if isinstance(result, bytes):
             return result.decode("utf-8")
-        elif isinstance(result, str):
+        if isinstance(result, str):
             return result
-        else:
-            return ""
+        return ""
 
     def get_text_raw(self):
         """
@@ -386,18 +386,19 @@ class PyTessy(object):
                  verbose_search (boolean)   [optional] Whether to display
                                             library searching process or not.
         @Raises: NotImplementedError        If the operating system is not
-                                            implemented yet (linux, macOS).
+                                            implemented yet (macOS).
                                             You can avoid this error by giving
                                             exact path of Tesseract-OCR library.
-                 NotImplementedError        If the operating system will be
-                                            never implemented.
+                 NotImplementedError        If the operating system is
+                                            not supported.
                                             You can avoid this error by giving
                                             exact path of Tesseract-OCR library.
                  FileNotFoundError          If the given exact library path
                                             doesn't point to existing file.
                  FileNotFoundError          If failed to found library with
                                             search process.
-                 FileNotFoundError          If cannot found "tessdata" directory.
+                 FileNotFoundError          If the directory "tessdata"
+                                            is not found.
         """
         run_path = pathlib.Path.cwd().parent.absolute()
         no_lib = True
@@ -406,7 +407,7 @@ class PyTessy(object):
                 no_lib = False
             else:
                 raise FileNotFoundError(
-                    'PyTessy: lib_path: "{}" doesn\'t exist.'.format(lib_path)
+                    f'PyTessy: lib_path: "{lib_path}" does not exist.'
                 )
         if no_lib:
             if verbose_search:
@@ -415,15 +416,14 @@ class PyTessy(object):
                 verbose = lambda *pa, **pk: None
             if platform.startswith("win"):
                 verbose(
-                    "PyTessy v{} on {} searching for Tesseract-OCR library...".format(
-                        PyTessy.VERSION, platform
-                    )
+                    f"PyTessy v{PyTessy.VERSION} on {platform} "
+                    "searching for Tesseract-OCR library..."
                 )
                 if api_version is None:
                     lib_name = "libtesseract-5"
                 else:
-                    lib_name = "libtesseract{}".format(api_version)
-                verbose("--- Target library name: {}".format(lib_name))
+                    lib_name = f"libtesseract{api_version}"
+                verbose(f"--- Target library name: {lib_name}")
                 if tesseract_path is not None:
                     dirs = [
                         tesseract_path,
@@ -442,23 +442,21 @@ class PyTessy(object):
                             environ["PROGRAMFILES(X86)"], PyTessy.TESSERACT_DIRNAME
                         )
                     )
-                for dir in dirs:
-                    test = pathlib.Path(dir, f"{lib_name}.dll")
+                for dir_ in dirs:
+                    test = pathlib.Path(dir_, f"{lib_name}.dll")
                     if test.is_file():
                         lib_path = test
-                        verbose("    {} SUCCESS.".format(test))
+                        verbose(f"    {test} SUCCESS.")
                         break
-                    else:
-                        verbose("    {} FAILED.".format(test))
+                    verbose(f"    {test} FAILED.")
                 if lib_path is None:
                     raise FileNotFoundError("Cannot locate Tesseract-OCR library.")
             elif platform.startswith("linux"):
-                findProgram = find_executable("tesseract")
-                if len(findProgram) == 0:
+                find_program = find_executable("tesseract")
+                if len(find_program) == 0:
                     raise FileNotFoundError("Cannot locate Tesseract-OCR library.")
-                else:
-                    lib_path = "tesseract"
-                    data_path = "/usr/share/tessdata/"
+                lib_path = "tesseract"
+                data_path = "/usr/share/tessdata/"
             elif platform.startswith("darwin"):
                 raise NotImplementedError(
                     "PyTessy: Library search on MacOS is not implemented yet."
@@ -483,14 +481,14 @@ class PyTessy(object):
                     data_path = test_path
                     break
             if data_path is None:
-                raise FileNotFoundError('PyTessy: Couldn\'t find "tessdata" directory.')
+                raise FileNotFoundError('PyTessy: Could not find "tessdata" directory.')
         self._tess = TesseractHandler(
             lib_path=lib_path, data_path=data_path, language=language
         )
         self._tess.set_variable("tessedit_pageseg_mode", psm)
         self._tess.set_variable("tessedit_ocr_engine_mode", oem)
         if char_whitelist:
-            self._tess.set_variable(b"tessedit_char_whitelist", char_whitelist)
+            self._tess.set_variable("tessedit_char_whitelist", char_whitelist)
 
     def justread(
         self,
@@ -552,7 +550,7 @@ class PyTessy(object):
                                                       Mode as per TessPageSegMode
                                                       enum (see set_psm method)
         @Return: (bytes)                              Text read by Tesseract-OCR
-                                                      as raw bytes data.
+                                                      as raw bytes' data.
         """
 
         if psm is None:
@@ -605,16 +603,15 @@ class PyTessy(object):
                 resolution,
                 psm,
             )
-        else:
-            return self.justread(
-                imagedata,
-                width,
-                height,
-                bytes_per_pixel,
-                bytes_per_line,
-                resolution,
-                psm,
-            )
+        return self.justread(
+            imagedata,
+            width,
+            height,
+            bytes_per_pixel,
+            bytes_per_line,
+            resolution,
+            psm,
+        )
 
     def readnp(self, imagedata: np.ndarray, resolution=96, raw=False, psm=3):
         """
