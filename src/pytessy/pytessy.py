@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-# pylint: disable = anomalous-backslash-in-string
-"""
+
+r"""
         _                 _
        (_)               | |
  _ __   _  __  __   ___  | |
@@ -28,7 +28,6 @@ Copyright rixel 2020
 Distributed under the Boost Software License, Version 1.0.
 See accompanying file LICENSE or a copy at https://www.boost.org/LICENSE_1_0.txt
 """
-# pylint: enable = anomalous-backslash-in-string
 
 import ctypes
 import ctypes.util

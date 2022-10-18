@@ -26,7 +26,7 @@ setup(
     python_requires=">=3.6, <4",
     install_requires=["numpy"],
     extras_require={
-        "dev": ["check-manifest"],
+        "dev": ["flake8", "pytest"],
         "test": ["coverage", "Pillow"],
     },
     test_suite='tests',
