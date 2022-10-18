@@ -366,7 +366,7 @@ class PyTessy(object):
     TESSDATA_DIRNAME = "tessdata"
     TESSERACT_DIRNAME = "Tesseract-OCR"
     TESSERACT_DEFAULT_HORIZONTAL_DPI = 70
-    VERSION = "0.0.1"
+    VERSION = "0.1.1"
 
     def __init__(
         self,
