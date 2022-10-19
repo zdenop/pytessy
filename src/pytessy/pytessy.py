@@ -49,7 +49,7 @@ class PyTessyError(Exception):
     pass  # pylint: disable=unnecessary-pass
 
 
-class TesseractHandler(object):
+class TesseractHandler:
     """
     TesseractHandler class
     ----------------------
@@ -343,7 +343,7 @@ class TesseractHandler(object):
             self.closed = True
 
 
-class PyTessy(object):
+class PyTessy:
     """
     PyTessy
     -------
