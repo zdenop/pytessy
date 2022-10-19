@@ -36,7 +36,11 @@ from os import environ
 import pathlib
 from sys import platform
 
-import numpy as np
+try:
+    import numpy as np
+    NO_NUMPY = False
+except ImportError:
+    NO_NUMPY = True
 
 
 class PyTessyError(Exception):
@@ -77,6 +81,7 @@ class TesseractHandler:
                  language   (string)    [optional] Language code to work with.
         """
 
+        self.closed = False
         if self._lib is None:
             self.setup_lib(lib_path)
         self._api = self._lib.TessBaseAPICreate()
@@ -614,7 +619,7 @@ class PyTessy:
             psm,
         )
 
-    def readnp(self, imagedata: np.ndarray, resolution=96, raw=False, psm=3):
+    def readnp(self, imagedata, resolution=96, raw=False, psm=3):
         """
         Reads text from image data contained in a numpy ndarray
         --------------------------
@@ -628,6 +633,13 @@ class PyTessy:
                                            enum (see set_psm method)
         @Return: (bytes) or (string)       Text read by Tesseract-OCR
         """
+        if NO_NUMPY:
+            print(
+                "Function 'readnp' requires python module numpy, which is not available."
+            )
+            return ""
+        if not isinstance(imagedata, np.ndarray):
+            raise PyTessyError("imagedata should be 3- or 2- dimensional numpy ndarray")
         if len(imagedata.shape) == 2:  # greyscale picture
             height, width = imagedata.shape
             bytes_per_pixel = 1
