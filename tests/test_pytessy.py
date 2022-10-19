@@ -1,3 +1,6 @@
+"""
+   These are the unit tests for our pytessy
+"""
 import unittest
 import pathlib
 
@@ -6,24 +9,25 @@ from pytessy.pytessy import PyTessy
 
 
 class TestPyTessy(unittest.TestCase):
-
+    """Used as pytessy testing"""
     _test_dir = pathlib.Path(__file__).parent.resolve()
     _image_file = pathlib.Path(_test_dir, "testWord.png")
 
     def test_pytessy(self):
-        ocrReader = PyTessy()
+        """Test read function with PIL/Pillow image"""
+        ocr_reader = PyTessy()
         img = Image.open(self._image_file)
-        imgBytes = img.tobytes()
-        bytesPerPixel = int(len(imgBytes) / (img.width * img.height))
-        imageStr = ocrReader.read(
-            imgBytes,
+        img_bytes = img.tobytes()
+        bytes_per_pixel = int(len(img_bytes) / (img.width * img.height))
+        image_str = ocr_reader.read(
+            img_bytes,
             img.width,
             img.height,
-            bytesPerPixel,
+            bytes_per_pixel,
             raw=True,
             resolution=300,
         )
-        self.assertEqual(imageStr.decode("utf-8"), "Test Word\n")
+        self.assertEqual(image_str, b"Test Word\n")
 
 
 if __name__ == "__main__":

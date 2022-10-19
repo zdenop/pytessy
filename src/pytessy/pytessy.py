@@ -46,7 +46,7 @@ class PyTessyError(Exception):
     Empty subclass of Exception to throw module-specific errors.
     """
 
-    pass
+    pass  # pylint: disable=unnecessary-pass
 
 
 class TesseractHandler(object):
@@ -59,7 +59,7 @@ class TesseractHandler(object):
     _lib = None
     _api = None
 
-    class TessBaseAPI(ctypes._Pointer):
+    class TessBaseAPI(ctypes._Pointer):  # pylint: disable=protected-access
         """
         TessBaseAPI
         -----------
@@ -410,9 +410,11 @@ class PyTessy(object):
                 )
         if no_lib:
             if verbose_search:
-                verbose = lambda *pa, **pk: print(*pa, **pk)
+                def verbose(*arg, **kwargs):
+                    print(*arg, **kwargs)
             else:
-                verbose = lambda *pa, **pk: None
+                def verbose(*arg, **kwargs):  # pylint: disable=W0613
+                    None                      # pylint: disable=pointless-statement
             if platform.startswith("win"):
                 verbose(
                     f"PyTessy v{PyTessy.VERSION} on {platform} "
